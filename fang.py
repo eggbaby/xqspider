@@ -52,3 +52,5 @@ for url in BASE_URLS :
 			conn.rollback()
 print "-------------find xiaoqu : %s" % xqc + "       add xiaoqu: %s -------------" % xqac
 
+def get_detail ( url ):
+	pass
