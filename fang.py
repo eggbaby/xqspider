@@ -29,28 +29,42 @@ cur.execute('SET NAMES utf8')
 cur.execute('SET CHARACTER SET utf8')
 cur.execute('set character_set_connection=utf8')
 
+def get_detail ( url ):
+	print url
+	detailReq = requests.get(url)
+	detailSoup = BeautifulSoup(detailReq.text)
+	xqName = detailSoup.find("div","comm-cont").find("h1")
+	print xqName.get_text()
+	xqDetail = detailSoup.find("div","comm-list").findAll("dt")
+	print type(xqDetail)
+	#for a in xqDetail:
+	#	print a.get_text()
+	xqDetail1 = detailSoup.find("div","comm-list").findAll("dd")
+	#for b in xqDetail1:
+	#	print b.get_text()
+
 for url in BASE_URLS :
-	r = requests.get(url)
-	soup = BeautifulSoup(r.text)
-	xqlist = soup.findAll(id = re.compile("comm_name_qt_apf_id\d*"))
+	listReq = requests.get(url)
+	listSoup = BeautifulSoup(listReq.text)
+	xqlist = listSoup.findAll(id = re.compile("comm_name_qt_apf_id\d*"))
 	for xq in xqlist :
 		name = xq.get_text()
 		url = xq.get('href')
-		try:
-			n = cur.execute('select * from xiaoqu where url =  \'%s\''%url)
-			#not found xiaoqu data
-			if n == 0 :
-				xqac = xqac + 1
-				sql = "insert into xiaoqu(name,url,create_date) values ('%s','%s',now())"%(name,url)
-				#print sql
-				cur.execute(sql)
-				conn.commit()
-			else :
-				print "find data %s:%s"%(name,url)
-		except Exception,e:
-			print str(e)
-			conn.rollback()
+		get_detail ( url )
+		#try:
+		#	n = cur.execute('select * from xiaoqu where url =  \'%s\''%url)
+		#	#not found xiaoqu data
+		#	if n == 0 :
+		#		xqac = xqac + 1
+		#		sql = "insert into xiaoqu(name,url,create_date) values ('%s','%s',now())"%(name,url)
+		#		#print sql
+		#		cur.execute(sql)
+		#		conn.commit()
+		#	else :
+		#		print "find data %s:%s"%(name,url)
+		#except Exception,e:
+		#	print str(e)
+		#	conn.rollback()
 print "-------------find xiaoqu : %s" % xqc + "       add xiaoqu: %s -------------" % xqac
 
-def get_detail ( url ):
-	pass
+
