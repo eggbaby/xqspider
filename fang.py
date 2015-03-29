@@ -18,6 +18,7 @@ xqac = 0
 #xiaoqumain_count,xiaoqumain_add_count
 xqmc = 0
 xqmad = 0
+result = []
 
 #for url in BASE_URLS :
 #	print url
@@ -30,18 +31,31 @@ cur.execute('SET CHARACTER SET utf8')
 cur.execute('set character_set_connection=utf8')
 
 def get_detail ( url ):
+	result = []
 	print url
 	detailReq = requests.get(url)
 	detailSoup = BeautifulSoup(detailReq.text)
 	xqName = detailSoup.find("div","comm-cont").find("h1")
-	print xqName.get_text()
-	xqDetail = detailSoup.find("div","comm-list").findAll("dt")
-	print type(xqDetail)
-	#for a in xqDetail:
-	#	print a.get_text()
-	xqDetail1 = detailSoup.find("div","comm-list").findAll("dd")
-	#for b in xqDetail1:
-	#	print b.get_text()
+	#print xqName.get_text()
+	#xqDetail = detailSoup.find("div","comm-list").findAll("dt")
+	#print type(xqDetail)
+	xqDetail = detailSoup.find("div","comm-list").findAll("dd")
+	i = 0
+	result.append(url)
+	result.append(re.findall(r'view/\w+',url)[0])
+	for a in xqDetail :
+		if i in (0,1,2,5,8,9) :
+			result.append(a.get_text())
+		i = i + 1
+	print result
+	arealist = result(3).split(" ")
+	for area in arealist :
+		result.append(area)
+	del result[3]
+	for r in result :
+		print r
+		#elif i == 
+		#print a.get_text()
 
 for url in BASE_URLS :
 	listReq = requests.get(url)
@@ -66,5 +80,3 @@ for url in BASE_URLS :
 		#	print str(e)
 		#	conn.rollback()
 print "-------------find xiaoqu : %s" % xqc + "       add xiaoqu: %s -------------" % xqac
-
-
