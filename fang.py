@@ -18,10 +18,7 @@ xqac = 0
 #xiaoqumain_count,xiaoqumain_add_count
 xqmc = 0
 xqmad = 0
-result = []
 
-#for url in BASE_URLS :
-#	print url
 conn = MySQLdb.connect(HOST,USER,PASSWD,DB,PORT)
 conn.set_character_set('utf8')
 
@@ -30,28 +27,28 @@ cur.execute('SET NAMES utf8')
 cur.execute('SET CHARACTER SET utf8')
 cur.execute('set character_set_connection=utf8')
 
-def get_detail ( url ):
+def get_detail ( url , address):
 	result = []
-	print url
 	detailReq = requests.get(url)
 	detailSoup = BeautifulSoup(detailReq.text)
 	xqName = detailSoup.find("div","comm-cont").find("h1")
-	#print xqName.get_text()
-	#xqDetail = detailSoup.find("div","comm-list").findAll("dt")
-	#print type(xqDetail)
 	xqDetail = detailSoup.find("div","comm-list").findAll("dd")
 	i = 0
 	result.append(url)
 	result.append(re.findall(r'view/\w+',url)[0])
+	result.append(address)
 	for a in xqDetail :
-		if i in (0,1,2,5,8,9) :
+		# 0:name 1:district&area 5:btype 8:totalcount 9:buildtime
+		if i in (0,1,5,8,9) :
 			result.append(a.get_text())
 		i = i + 1
-	print result
-	arealist = result(3).split(" ")
-	for area in arealist :
-		result.append(area)
-	del result[3]
+	#print  re.sub(r'\s+',' ',result[3]).strip(' ').strip('\n').split(" ")
+	arealist = re.sub(r'\s+',' ',result[4]).strip(' ').strip('\n').split(" ")
+	del result[4]
+	n = 0
+	for r in result :
+		result[n] = r.strip('\n')
+		n = n +1
 	for r in result :
 		print r
 		#elif i == 
@@ -60,11 +57,13 @@ def get_detail ( url ):
 for url in BASE_URLS :
 	listReq = requests.get(url)
 	listSoup = BeautifulSoup(listReq.text)
-	xqlist = listSoup.findAll(id = re.compile("comm_name_qt_apf_id\d*"))
+	#xqlist = listSoup.findAll(id = re.compile("comm_name_qt_apf_id\d*"))
+	xqlist = listSoup.findAll("div",{ "class":"details" })
 	for xq in xqlist :
-		name = xq.get_text()
-		url = xq.get('href')
-		get_detail ( url )
+		#name = xq.find(id = re.compile("comm_name_qt_apf_id\d*")).get_text()
+		url = xq.find(id = re.compile("comm_name_qt_apf_id\d*")).get('href')
+		address = xq.find("div",{ "class":"t_b"}).next_sibling.next_sibling.get_text()
+		get_detail ( url,address )
 		#try:
 		#	n = cur.execute('select * from xiaoqu where url =  \'%s\''%url)
 		#	#not found xiaoqu data
