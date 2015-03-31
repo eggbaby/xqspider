@@ -62,8 +62,6 @@ def add_data ( result ):
 				sql = "insert into xiaoqu(id,name,url,py,ajkid,district,area,address,buildtime,btype,totalcount,create_date) values (%s,'%s','%s','%s',%s,'%s','%s','%s','%s','%s','%s',now())"%(result[1],result[3],result[0],'',result[1],result[7],result[8],result[2],result[6],result[4],result[5])
 			else :
 				sql = "insert into xiaoqu(id,name,url,py,ajkid,district,area,address,buildtime,btype,totalcount,create_date) values (%s,'%s','%s','%s',%s,'%s','%s','%s','%s','%s','%s',now())"%(result[1],result[3],result[0],'',result[1],result[7],'',result[2],result[6],result[4],result[5])
-			
-
 			print sql
 			cur.execute(sql)
 			conn.commit()
@@ -72,10 +70,17 @@ def add_data ( result ):
 	except Exception,e :
 		print str(e)
 		conn.rollback()
-	#finally :
-	#	conn.close()
 
-for a in range (1,1976) :
+
+
+f = open('log.txt','r')
+current_page = f.readline()
+f.close()
+if not len(current_page) :
+	current_page = '1'
+for a in range (int(current_page),1976) :
+	f = open('log.txt','w')
+	f.write(str(a))
 	listReq = requests.get(BASE_URL + str(a))
 	listSoup = BeautifulSoup(listReq.text)
 	xqlist = listSoup.findAll("div",{ "class":"details" })
@@ -84,4 +89,6 @@ for a in range (1,1976) :
 		address = xq.find("div",{ "class":"t_b"}).next_sibling.next_sibling.get_text()
 		result = get_detail ( url,address )
 		add_data( result )	
+conn.close()
+f.close()
 print "-------------find xiaoqu : %s" % total_count + "       add xiaoqu: %s -------------" % add_count
